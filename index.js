@@ -1,21 +1,29 @@
 const { ApolloServer, gql } = require('apollo-server');
 
-const { schema } = require('./schema');
+//const schema = require('./graphql/schema');
 
-const { users } = require('./resolvers');
+const typeDefs = gql`
 
-
-// A map of functions which return data for the schema.
-const resolvers = {
-  users: {
-    hello: () => 'world'
+  type User {
+    guid: ID!
+    name: String!
+    colleagues: [User]!
   }
-};
 
-const server = new ApolloServer({
-  schema,
-  resolvers,
-});
+  type Query {
+    user(guid: ID, name: String): User
+    colleagues(guid: ID): [User]!
+  }
+
+  schema {
+    query: Query
+  }
+
+`;
+
+const resolvers  = require('./resolvers/Query');
+
+const server = new ApolloServer({ typeDefs, resolvers });
 
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
