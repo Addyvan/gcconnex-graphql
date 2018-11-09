@@ -1,0 +1,17 @@
+{
+  "name": "gcconnex-graphql",
+  "version": "1.0.0",
+  "description": "A GraphQL api for GCconnex",
+  "main": "index.js",
+  "scripts": {
+    "test": "\\"
+  },
+  "author": "Addison van den Hoeven",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server": "^2.2.0",
+    "apollo-server-express": "^2.2.0",
+    "graphql": "^14.0.2",
+    "mysql": "^2.16.0"
+  }
+}
