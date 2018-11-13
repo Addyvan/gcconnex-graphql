@@ -16,6 +16,7 @@ class MySQLConnector {
    * @return {Promise} The Promise object containing the result of the query.
    */
   query( sql, args ) {
+    console.log("db requested");
     return new Promise( ( resolve, reject ) => {
       this.connection.query( sql, args, ( err, rows ) => {
         if ( err )

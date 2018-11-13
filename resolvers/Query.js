@@ -7,6 +7,7 @@ var user_model = new User(new MySQLConnector());
  * @todo Implement recursion to travel through the GraphQL nested queries 
  */
 function createFieldsObject(info) {
+
   var fields = [];
   info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
         
@@ -26,39 +27,35 @@ function createFieldsObject(info) {
   });
   
   return fields;
+
 }
 
 const resolverMap = {
   Query: {
 
-    user: (root, args, context, info) => {
+    user: async (root, args, context, info) => {
       var results = {};
       var fields = createFieldsObject(info);
+      var user_fields = []; // any fields in elggusers_entity
 
       // Loop through the selected fields and provide requested data given the args provided
       fields.map((field) => {
         if ( field.name === 'guid' ) {
 
           if ( args.guid ) {
-            results.guid = args.guid; // if your input variable is guid then just use that!
+            results.guid = args.guid;
           } else {
-            if ( args.name ) {
-              results.guid = user_model.getGuid(args.name);
-            }
+            user_fields.push('guid');
           }
 
         }
 
         if ( field.name === 'name' ) {
-
+          
           if ( args.name ) {
             results.name = args.name;
           } else {
-            if ( args.guid ) {
-              results.name = user_model.getName(args.guid);
-            } else {
-              results.name = "error no guid or name provided";
-            }
+            user_fields.push('name');
           }
 
         }
@@ -71,6 +68,12 @@ const resolverMap = {
           
         }
 
+      });
+
+      user_results = await user_model.getUser(args, user_fields);
+      
+      user_fields.map((field) => {
+        results[field] = user_results[0][field]
       });
 
       return(results);

@@ -11,29 +11,45 @@ class User {
   }
 
   /** 
-   * Get a users guid using their name
-   * @param {string} name - the users name.
-   * @todo Implement procedure for instances where two users have the same name
+   * Get a user's information given args and requested fields from the db
+   * @param {object} args - unique identifier.
+   * @param {array of strings} requestedFields - unique identifier.
    */
-  async getGuid(name){
-    
-    var guid = await this.mysql_db.query(`SELECT guid FROM elggusers_entity WHERE name LIKE "%${name}%"`);
+  async getUser(args, requestedFields) {
+    var parameter_string = "";
+    if (args.guid) {
+      parameter_string = `WHERE guid = ${args.guid}`;
+    } else {
+      if (args.name) {
+        parameter_string = `WHERE name LIKE "%${args.name}%"`;
+      }
+    }
 
-    return guid[0].guid;
+    var requestedFields_string = "";
+    requestedFields.map((field, array_index) => {
+
+      if (array_index < requestedFields.length - 1) {
+        requestedFields_string += field + ",";
+      } else {
+        requestedFields_string += field;
+      }
+      
+    });
     
+    // This needs to be a promise to work!
+    return new Promise( ( resolve, reject ) => {
+      var user = this.mysql_db.query(`SELECT ${requestedFields_string} FROM elggusers_entity ${parameter_string}`)
+        .then(result => resolve(result));
+    });
+
   }
 
   /** 
-   * Get a users name using their guid
-   * @param {ID} guid - unique identifier.
-   */
-  async getName(guid){
+   * @todo implement getUsers in order to batch requests into single sql queries
+  async getUsers() {
     
-    var name = await this.mysql_db.query(`SELECT name FROM elggusers_entity WHERE guid = ${guid}`);
-
-    return name[0].name;
-
   }
+  */
 
   /** 
    * Get a users name using their guid
