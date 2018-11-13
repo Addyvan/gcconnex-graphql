@@ -1,5 +1,7 @@
 ## Installation
 
+Note: This repo is very much so in development. 
+
 To install run:
 
 `npm install`
