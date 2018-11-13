@@ -9,11 +9,26 @@ const resolverMap = {
 
     user: (root, args, context, info) => {
       var results = {};
+      var fields = [];
+      info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
+        
+        if (fieldObj.selectionSet) {
+          var subselections = [];
+          fieldObj.selectionSet.selections.map((fieldobj) => {
+            subselections.push(fieldobj.name.value);
+          });
+          fields.push({
+            name: fieldObj.name.value,
+            subFields: subselections
+          });
+        } else {
+          fields.push({name: fieldObj.name.value});
+        }
 
+      });
       // Loop through the selected fields and provide requested data given the args provided
-      info.fieldNodes[0].selectionSet.selections.map((field) => {
-
-        if ( field.name.value === 'guid' ) {
+      fields.map((field) => {
+        if ( field.name === 'guid' ) {
 
           if ( args.guid ) {
             results.guid = args.guid; // if your input variable is guid then just use that!
@@ -25,7 +40,7 @@ const resolverMap = {
 
         }
 
-        if ( field.name.value === 'name' ) {
+        if ( field.name === 'name' ) {
 
           if ( args.name ) {
             results.name = args.name;
@@ -41,9 +56,9 @@ const resolverMap = {
 
         // args logic moved to the user_model function
         // Nested queries aren't implemented yet, going to look into data loader / optimization techniques first
-        if ( field.name.value === 'colleagues' ) {
+        if ( field.name === 'colleagues' ) {
           
-          results.colleagues = user_model.getColleagues(args);
+          results.colleagues = user_model.getColleagues(args, field.subFields);
           
         }
 
