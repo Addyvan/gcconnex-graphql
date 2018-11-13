@@ -3,29 +3,38 @@ var User = require('./models/User');
 
 var user_model = new User(new MySQLConnector());
 
+/**
+ * @todo Implement recursion to travel through the GraphQL nested queries 
+ */
+function createFieldsObject(info) {
+  var fields = [];
+  info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
+        
+    if (fieldObj.selectionSet) {
+      var subselections = [];
+      fieldObj.selectionSet.selections.map((fieldobj) => {
+        subselections.push(fieldobj.name.value);
+      });
+      fields.push({
+        name: fieldObj.name.value,
+        subFields: subselections
+      });
+    } else {
+      fields.push({name: fieldObj.name.value});
+    }
+
+  });
+  
+  return fields;
+}
 
 const resolverMap = {
   Query: {
 
     user: (root, args, context, info) => {
       var results = {};
-      var fields = [];
-      info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
-        
-        if (fieldObj.selectionSet) {
-          var subselections = [];
-          fieldObj.selectionSet.selections.map((fieldobj) => {
-            subselections.push(fieldobj.name.value);
-          });
-          fields.push({
-            name: fieldObj.name.value,
-            subFields: subselections
-          });
-        } else {
-          fields.push({name: fieldObj.name.value});
-        }
+      var fields = createFieldsObject(info);
 
-      });
       // Loop through the selected fields and provide requested data given the args provided
       fields.map((field) => {
         if ( field.name === 'guid' ) {
