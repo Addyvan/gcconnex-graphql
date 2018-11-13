@@ -12,7 +12,7 @@ Currently, the API can only be developed using the GCconnex dev database at 140 
 
 Currently, this is the most complex query you can make. Nesting is currently being developed/optimized; however, deeply nesting anything will greatly hinder performance. A cap on how deeply nested queries can be will probably be implemented soon.
 
-`
+```
 {
   users {
     guid
@@ -23,4 +23,4 @@ Currently, this is the most complex query you can make. Nesting is currently bei
     }
   }
 }
-`
+```
