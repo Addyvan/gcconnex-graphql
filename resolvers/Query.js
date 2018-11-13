@@ -8,26 +8,48 @@ const resolverMap = {
   Query: {
 
     user: (root, args, context, info) => {
-      if (args.guid) {
-        return ({
-          guid: args.guid,
-          name: user_model.getName(args.guid)
-        })
-      }
-      if (args.name) {
-        return ({
-          guid: user_model.getGuid(args.name),
-          name: args.name
-        })
-      }
-    },
+      var results = {};
 
-    colleagues: (root, args, context, info) => {
-      if (args.user) {
-        return ({
-          colleagues: user_model.getColleagues(args.user.guid)
-        })
-      }
+      // Loop through the selected fields and provide requested data given the args provided
+      info.fieldNodes[0].selectionSet.selections.map((field) => {
+
+        if ( field.name.value === 'guid' ) {
+
+          if ( args.guid ) {
+            results.guid = args.guid; // if your input variable is guid then just use that!
+          } else {
+            if ( args.name ) {
+              results.guid = user_model.getGuid(args.name);
+            }
+          }
+
+        }
+
+        if ( field.name.value === 'name' ) {
+
+          if ( args.name ) {
+            results.name = args.name;
+          } else {
+            if ( args.guid ) {
+              results.name = user_model.getName(args.guid);
+            } else {
+              results.name = "error no guid or name provided";
+            }
+          }
+
+        }
+
+        // args logic moved to the user_model function
+        // Nested queries aren't implemented yet, going to look into data loader / optimization techniques first
+        if ( field.name.value === 'colleagues' ) {
+          
+          results.colleagues = user_model.getColleagues(args);
+          
+        }
+
+      });
+
+      return(results);
     }
   }
 };

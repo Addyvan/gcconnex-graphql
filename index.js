@@ -7,12 +7,11 @@ const typeDefs = gql`
   type User {
     guid: ID!
     name: String!
-    colleagues: [User]!
+    colleagues: [User]
   }
 
   type Query {
     user(guid: ID, name: String): User
-    colleagues(guid: ID): [User]!
   }
 
   schema {
