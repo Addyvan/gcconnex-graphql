@@ -1,7 +1,9 @@
 ## Installation
 
-To install run 
+To install run:
+
 `npm install`
+
 `node index`
 
 A `creds.js` file also needs to be in the root directory for things to run.
