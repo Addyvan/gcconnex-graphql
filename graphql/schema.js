@@ -1,5 +1,5 @@
 const { gql } = require('apollo-server');
-
+// THIS FILE ISNT BEING USED RIGHT NOW GO TO index.js
 const typeDefs = gql`
 
   type User {

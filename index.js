@@ -7,11 +7,23 @@ const typeDefs = gql`
   type User {
     guid: ID!
     name: String!
+    language: String
+    email: String
+    last_action: String
+    last_login: String
     colleagues: [User]
+  }
+
+  type Group {
+    guid: ID!
+    name: String!
+    description: String
+    members: [User]
   }
 
   type Query {
     user(guid: ID, name: String): User
+    group(guid: ID, name: String): Group
   }
 
   schema {
