@@ -9,6 +9,7 @@
   "author": "Addison van den Hoeven",
   "license": "MIT",
   "dependencies": {
+    "amqplib": "^0.5.2",
     "apollo-server": "^2.2.0",
     "apollo-server-express": "^2.2.0",
     "dataloader": "^1.4.0",

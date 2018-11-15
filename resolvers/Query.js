@@ -6,40 +6,14 @@ var db = new MySQLConnector();
 var user_model = new User(db);
 var group_model = new Group(db);
 
-/**
- * @todo Implement recursion to travel through the GraphQL nested queries 
- */
-function createFieldsObject(info) {
-
-  var fields = [];
-  info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
-        
-    if (fieldObj.selectionSet) {
-      var subselections = [];
-      fieldObj.selectionSet.selections.map((fieldobj) => {
-        subselections.push(fieldobj.name.value);
-      });
-      fields.push({
-        name: fieldObj.name.value,
-        subFields: subselections
-      });
-    } else {
-      fields.push({name: fieldObj.name.value});
-    }
-
-  });
-  
-  return fields;
-
-}
 
 const resolverMap = {
   Query: {
 
     user: async (root, args, context, info) => {
       var results = {};
-      var fields = createFieldsObject(info);
-      var user_fields = []; // any fields in elggusers_entity
+      var fields = createFieldsObject(info); // parse the info object to get the desired fields
+      var user_fields = []; // stores any fields in elggusers_entity
       
       // Loop through the selected fields and provide requested data given the args provided
       fields.map((field) => {
@@ -182,5 +156,34 @@ const resolverMap = {
   }
 
 };
+
+/**
+ * Function to parse fields object and return list
+ * @param {info} - GraphQL info object
+ * @todo implement recursive parsing for deeply nested queries
+ */
+function createFieldsObject(info) {
+
+  var fields = [];
+  info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
+        
+    if (fieldObj.selectionSet) {
+      var subselections = [];
+      fieldObj.selectionSet.selections.map((fieldobj) => {
+        subselections.push(fieldobj.name.value);
+      });
+      fields.push({
+        name: fieldObj.name.value,
+        subFields: subselections
+      });
+    } else {
+      fields.push({name: fieldObj.name.value});
+    }
+
+  });
+  
+  return fields;
+
+}
 
 module.exports = resolverMap;
