@@ -4,13 +4,15 @@ const { ApolloServer, gql } = require('apollo-server');
 
 const typeDefs = gql`
 
+  scalar Date
+
   type User {
     guid: ID!
     name: String!
     language: String
     email: String
-    last_action: String
-    last_login: String
+    last_action: Date
+    last_login: Date
     colleagues: [User]
   }
 

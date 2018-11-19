@@ -6,11 +6,33 @@ var db = new MySQLConnector();
 var user_model = new User(db);
 var group_model = new Group(db);
 
+var moement = require ('moment')
+
 
 const resolverMap = {
+
+  Date: {
+    __parseValue(value) {
+      return new Date(value); // value from the client
+    },
+    __serialize(value) {
+      return moement(value).format('DD-MM-YYYY'); // value sent to the client
+    },
+    __parseLiteral(ast) {
+      if (ast.kind === Kind.INT) {
+        return parseInt(ast.value, 10); // ast value is always in string format
+      }
+      return null;
+    }
+  },
+
   Query: {
 
     user: async (root, args, context, info) => {
+      console.log(root);
+      console.log(args);
+      console.log(context);
+      console.log(info);
       var results = {};
       var fields = createFieldsObject(info); // parse the info object to get the desired fields
       var user_fields = []; // stores any fields in elggusers_entity
