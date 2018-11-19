@@ -43,24 +43,6 @@ class Group {
 
   }
 
-  // async getNames(array_guids){
-    
-  //   var array_guid_string = "";
-  //   array_guids.map((guid, array_index) => {
-
-  //     if (array_index < array_guids.length - 1) {
-  //       array_guid_string += guid + ",";
-  //     } else {
-  //       array_guid_string += guid;
-  //     }
-      
-  //   });
-    
-  //   var names = await this.mysql_db.query(`SELECT name FROM elggusers_entity WHERE guid IN (${array_guid_string})`);
-
-  //   return names;
-
-  // }
   async getUsers(args, requestedFields, array_guids) {
     console.log(requestedFields);
     console.log(array_guids);

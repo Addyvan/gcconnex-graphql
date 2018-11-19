@@ -29,10 +29,6 @@ const resolverMap = {
   Query: {
 
     user: async (root, args, context, info) => {
-      console.log(root);
-      console.log(args);
-      console.log(context);
-      console.log(info);
       var results = {};
       var fields = createFieldsObject(info); // parse the info object to get the desired fields
       var user_fields = []; // stores any fields in elggusers_entity
