@@ -43,8 +43,23 @@ class Group {
 
   }
 
-  async getNames(array_guids){
-    
+  async getUsers(args, requestedFields, array_guids) {
+    console.log(requestedFields);
+    console.log(array_guids);
+    var requestedFields_string = "";
+    requestedFields.map((field, array_index) => {
+      
+      if (field === "last_action" || field === "last_login") {
+        field = "FROM_UNIXTIME(" + field + ") as " + field;
+      }
+      if (array_index < requestedFields.length - 1) {
+        requestedFields_string += field + ",";
+      } else {
+        requestedFields_string += field;
+      }
+      
+    });
+
     var array_guid_string = "";
     array_guids.map((guid, array_index) => {
 
@@ -56,10 +71,11 @@ class Group {
       
     });
     
-    var names = await this.mysql_db.query(`SELECT name FROM elggusers_entity WHERE guid IN (${array_guid_string})`);
-
-    return names;
-
+    // This needs to be a promise to work!
+    return new Promise( ( resolve, reject ) => {
+      var user = this.mysql_db.query(`SELECT ${requestedFields_string} FROM elggusers_entity WHERE guid IN (${array_guid_string})`)
+        .then(result => resolve(result));
+    });
   }
 
   /** 
@@ -98,25 +114,19 @@ class Group {
       guid_one_array.push(row.guid_one);
     });
 
-
-    if (subFields.includes("name")) {
-
-      var names = await this.getNames(guid_one_array);
-
-      members.map((row, index) => {
-        members_list.push({
-          guid: row.guid_two,
-          name: names[index].name
-        });
-      });
-
-    } else {
-      members.map((row) => {
-        members_list.push({
-          guid: row.guid_two,
-        });
-      })
+    if (subFields.length > 0) {
+      var users = await this.getUsers(args, subFields, guid_one_array);
     }
+
+    members.map((row, index) => {
+      var user_result = {
+        guid: row.guid_two,
+      };
+      subFields.map((field) => {
+        user_result[field] = users[index][field];
+      });
+      members_list.push(user_result);
+    });
 
     return members_list;
     

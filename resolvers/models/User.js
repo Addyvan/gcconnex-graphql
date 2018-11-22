@@ -50,7 +50,8 @@ class User {
    * @todo implement getUsers in order to batch requests into single sql queries
    */
   async getUsers(args, requestedFields, array_guids) {
-    
+    console.log(requestedFields);
+    console.log(array_guids);
     var requestedFields_string = "";
     requestedFields.map((field, array_index) => {
       

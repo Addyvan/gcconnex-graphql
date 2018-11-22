@@ -11,7 +11,26 @@ var user_model = new User(db);
 var group_model = new Group(db);
 var activity_feed_model = new ActivityFeed(db);
 
+var moement = require ('moment')
+
+
 const resolverMap = {
+
+  Date: {
+    __parseValue(value) {
+      return new Date(value); // value from the client
+    },
+    __serialize(value) {
+      return moement(value).format('DD-MM-YYYY'); // value sent to the client
+    },
+    __parseLiteral(ast) {
+      if (ast.kind === Kind.INT) {
+        return parseInt(ast.value, 10); // ast value is always in string format
+      }
+      return null;
+    }
+  },
+
   Query: {
     
     description: () => `This is an API for accessing data on GCconnex using GraphQL`,
