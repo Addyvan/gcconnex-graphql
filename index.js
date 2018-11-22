@@ -22,6 +22,7 @@ const typeDefs = gql`
   }
 
   type Query {
+    description: String
     user(guid: ID, name: String): User
     group(guid: ID, name: String): Group
   }
@@ -31,6 +32,7 @@ const typeDefs = gql`
   }
 
 `;
+
 
 const resolvers  = require('./resolvers/Query');
 

@@ -1,14 +1,20 @@
+// Connector
 var MySQLConnector = require('./connectors/mysql');
+
+// Models
 var User = require('./models/User');
 var Group = require('./models/Group');
+var ActivityFeed = require('./models/ActivityFeed');
 
 var db = new MySQLConnector();
 var user_model = new User(db);
 var group_model = new Group(db);
-
+var activity_feed_model = new ActivityFeed(db);
 
 const resolverMap = {
   Query: {
+    
+    description: () => `This is an API for accessing data on GCconnex using GraphQL`,
 
     user: async (root, args, context, info) => {
       var results = {};
@@ -87,7 +93,7 @@ const resolverMap = {
         }
 
       });
-
+      
       user_results = await user_model.getUser(args, user_fields);
       
       user_fields.map((field) => {
@@ -146,13 +152,82 @@ const resolverMap = {
       });
 
       group_results = await group_model.getGroup(args, group_fields);
-    
+      
       group_fields.map((field) => {
         results[field] = group_results[0][field];
       });
         
       return(results);
     }
+    /*
+    activity_feed: async (root, args, context, info) => {
+      var results = {};
+      var fields = createFieldsObject(info);
+      var desired_fields = [];
+
+      fields.map((field) => {
+
+        if ( field.name === 'id' ) {
+
+          if ( args.id ) {
+            results.id = args.id;
+          } else {
+            desired_fields.push('id');
+          }
+
+        }
+
+        if ( field.name === 'target' ) {
+          
+          if ( args.target ) {
+            results.target = args.target;
+          } else {
+            desired_fields.push('target');
+          }
+
+        }
+
+        if ( field.name === 'subject' ) {
+          
+          if ( args.subject ) {
+            results.subject = args.subject;
+          } else {
+            desired_fields.push('subject');
+          }
+
+        }
+
+        if ( field.name === 'action_type' ) {
+          
+          if ( args.action_type ) {
+            results.subject = args.action_type;
+          } else {
+            desired_fields.push('action_type');
+          }
+
+        }
+
+        if ( field.name === 'time_posted' ) {
+          
+          if ( args.time_posted ) {
+            results.subject = args.time_posted;
+          } else {
+            desired_fields.push('time_posted');
+          }
+
+        }
+
+      });
+
+      query_results = await activity_feed_model.getActivities(args, desired_fields);
+      
+      desired_fields.map((field) => {
+        results[field] = query_results[0][field];
+      });
+        
+      return(results);
+    }
+    */
   }
 
 };
@@ -163,8 +238,82 @@ const resolverMap = {
  * @todo implement recursive parsing for deeply nested queries
  */
 function createFieldsObject(info) {
+  var i = 1;
+  rootNode = {name:"root", children: []};
+  currentParent = null;
+  leaves = [];
 
+  function traverseSelection( selection ) {
+
+    if ( selection.selectionSet ) {
+      if (!currentParent) {
+        currentParent = { 
+          name: selection.name.value,
+          parent: rootNode,
+          children: []
+        };
+        rootNode.children.push(currentParent);
+      } else {
+        currentParent = { 
+          name: selection.name.value,
+          parent: currentParent,
+          children: []
+        };
+      }
+      
+      
+      selection.selectionSet.selections.map( (selection) => traverseSelection(selection) );
+    } else {
+      if (!currentParent) {
+        leaf = {
+          name: selection.name.value,
+          parent: rootNode,
+          children: null
+        };
+        rootNode.children.push(leaf);
+        leaves.push(leaf);
+      } else {
+        var leaf = {
+          name: selection.name.value,
+          parent: currentParent,
+          children: null
+        };
+        currentParent.children.push(leaf);
+        leaves.push(leaf);
+      }
+    }
+
+  }
+  
+  // START ON EACH ROOT NODE
+  info.fieldNodes[0].selectionSet.selections.map((rootSelection) => {
+    traverseSelection(rootSelection);
+  });
+
+
+  var visitFunction = (name) => {console.log(name);};
+  /**
+   * 
+   * @param {*} node The node in currently in question (Start with the root!)
+   * @param {*} fn The visit function to be called
+   */
+  function PostOrderTreeTraversal(node, callback) {
+    //visit the node
+    if (node.children) {
+      node.children.map((child) => PostOrderTreeTraversal(child, visitFunction));
+      callback(node.name);
+    }
+    else {
+      callback(node.name + " *leaf*");
+    }
+    
+  }
+  
+  PostOrderTreeTraversal(rootNode, visitFunction);
+  
+  
   var fields = [];
+
   info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
         
     if (fieldObj.selectionSet) {
@@ -185,5 +334,7 @@ function createFieldsObject(info) {
   return fields;
 
 }
+
+
 
 module.exports = resolverMap;

@@ -119,6 +119,8 @@ class User {
       guid_two_array.push(row.guid_two);
     });
 
+
+    var subFields = subFields.filter(function(e) { return e !== '__typename' })
     if (subFields.length > 0) {
       var users = await this.getUsers(args, subFields, guid_two_array);
     }
